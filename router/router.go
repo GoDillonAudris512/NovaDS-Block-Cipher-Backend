@@ -14,4 +14,8 @@ func ConfigureRouter(r *gin.Engine) {
 	// Define endpoints for back-end services
 	// General handler
 	r.GET("/api", handlers.HelloHandler)
+	apis := r.Group("/api")
+
+	// CBC Mode Endpoints
+	apis.POST("/cbc", handlers.HandleCBCRequest)
 }
