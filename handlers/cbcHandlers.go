@@ -14,6 +14,7 @@ func HandleCBCRequest(c *gin.Context) {
 	err := json.NewDecoder(c.Request.Body).Decode(&cbcRequest)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": "Failed to decode request body"})
+		return
 	}
 
 	blockArrays := algorithms.CreateBlockArrays(cbcRequest.TextBitArray)
@@ -24,12 +25,14 @@ func HandleCBCRequest(c *gin.Context) {
 			Success: true,
 			ResultBitArray: result,
 		})
+		return
 	} else {
 		result := CBCDecrypt(cbcRequest, blockArrays)
 		c.JSON(http.StatusOK, models.CBCResponse{
 			Success: true,
 			ResultBitArray: result,
 		})
+		return
 	}
 }
 
