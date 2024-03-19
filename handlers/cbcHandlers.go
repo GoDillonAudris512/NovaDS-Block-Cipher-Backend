@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 
 	"block-cipher/algorithms"
@@ -22,14 +23,14 @@ func HandleCBCRequest(c *gin.Context) {
 	if cbcRequest.Encrypt {
 		result := CBCEncrypt(cbcRequest, blockArrays)
 		c.JSON(http.StatusOK, models.CBCResponse{
-			Success: true,
+			Success:        true,
 			ResultBitArray: result,
 		})
 		return
 	} else {
 		result := CBCDecrypt(cbcRequest, blockArrays)
 		c.JSON(http.StatusOK, models.CBCResponse{
-			Success: true,
+			Success:        true,
 			ResultBitArray: result,
 		})
 		return
@@ -42,12 +43,12 @@ func CBCEncrypt(cbcRequest models.CBCRequest, blockArrays [][]int) []int {
 
 	for i := 0; i < len(blockArrays); i++ {
 		result := algorithms.XORBitArray(blockArrays[i], xorVector)
-		result = algorithms.Encrypt(result, cbcRequest.KeyBitArray)
+		result = algorithms.NovaDSEncrypt(result, cbcRequest.KeyBitArray)
 
 		xorVector = result
 		cipherBlockArrays = append(cipherBlockArrays, result)
 	}
-	
+
 	return algorithms.MergeBlockArrays(cipherBlockArrays)
 }
 
@@ -56,12 +57,12 @@ func CBCDecrypt(cbcRequest models.CBCRequest, blockArrays [][]int) []int {
 	xorVector := cbcRequest.InitVector
 
 	for i := 0; i < len(blockArrays); i++ {
-		result := algorithms.Decrypt(blockArrays[i], cbcRequest.KeyBitArray)
+		result := algorithms.NovaDSDecrypt(blockArrays[i], cbcRequest.KeyBitArray)
 		result = algorithms.XORBitArray(result, xorVector)
-		
+
 		xorVector = blockArrays[i]
 		plainBlockArrays = append(plainBlockArrays, result)
 	}
-	
+
 	return algorithms.MergeBlockArrays(plainBlockArrays)
 }

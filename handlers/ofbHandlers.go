@@ -10,7 +10,6 @@ import (
 	"block-cipher/models"
 )
 
-
 func HandleOFBRequest(c *gin.Context) {
 	var ofbRequest models.OFBRequest
 	err := json.NewDecoder(c.Request.Body).Decode(&ofbRequest)
@@ -22,14 +21,14 @@ func HandleOFBRequest(c *gin.Context) {
 	if ofbRequest.Encrypt {
 		result := OFBEncrypt(ofbRequest)
 		c.JSON(http.StatusOK, models.OFBResponse{
-			Success: true,
+			Success:        true,
 			ResultBitArray: result,
 		})
 		return
 	} else {
 		result := OFBDecrypt(ofbRequest)
 		c.JSON(http.StatusOK, models.OFBResponse{
-			Success: true,
+			Success:        true,
 			ResultBitArray: result,
 		})
 		return
@@ -41,10 +40,10 @@ func OFBEncrypt(ofbRequest models.OFBRequest) []int {
 	shiftRegister := ofbRequest.InitVector
 
 	for i := 0; i < len(ofbRequest.TextBitArray); i += 8 {
-		keystream := algorithms.Encrypt(shiftRegister, ofbRequest.KeyBitArray)
+		keystream := algorithms.NovaDSEncrypt(shiftRegister, ofbRequest.KeyBitArray)
 		keystreamLSB := keystream[0:8]
 
-		result := ofbRequest.TextBitArray[i:i+8]
+		result := ofbRequest.TextBitArray[i : i+8]
 		result = algorithms.XORBitArray(result, keystreamLSB)
 
 		shiftRegister = shiftRegister[8:128]
@@ -60,14 +59,14 @@ func OFBDecrypt(ofbRequest models.OFBRequest) []int {
 	shiftRegister := ofbRequest.InitVector
 
 	for i := 0; i < len(ofbRequest.TextBitArray); i += 8 {
-		keystream := algorithms.Encrypt(shiftRegister, ofbRequest.KeyBitArray)
+		keystream := algorithms.NovaDSEncrypt(shiftRegister, ofbRequest.KeyBitArray)
 		keystreamLSB := keystream[0:8]
 
-		result := ofbRequest.TextBitArray[i:i+8]
+		result := ofbRequest.TextBitArray[i : i+8]
 		result = algorithms.XORBitArray(result, keystreamLSB)
 
 		shiftRegister = shiftRegister[8:128]
-		shiftRegister = append(shiftRegister, (ofbRequest.TextBitArray[i:i+8])...)
+		shiftRegister = append(shiftRegister, (ofbRequest.TextBitArray[i : i+8])...)
 		plainBitArray = append(plainBitArray, result...)
 	}
 

@@ -21,14 +21,14 @@ func HandleECBRequest(c *gin.Context) {
 	if ecbRequest.Encrypt {
 		result := ECBEncrypt(ecbRequest)
 		c.JSON(http.StatusOK, models.ECBResponse{
-			Success: true,
+			Success:        true,
 			ResultBitArray: result,
 		})
 		return
 	} else {
 		result := ECBDecrypt(ecbRequest)
 		c.JSON(http.StatusOK, models.ECBResponse{
-			Success: true,
+			Success:        true,
 			ResultBitArray: result,
 		})
 		return
@@ -46,7 +46,7 @@ func ECBEncrypt(ecbRequest models.ECBRequest) []int {
 			end = len(plaintext)
 		}
 		block := plaintext[i:end]
-		encryptedBlock := algorithms.Encrypt(block, key)
+		encryptedBlock := algorithms.NovaDSEncrypt(block, key)
 		encryptedBlock := append(encryptedBlock[1:3], encryptedBlock[0])
 
 		cipherBitArray = append(cipherBitArray, encryptedBlock...)
@@ -67,7 +67,7 @@ func ECBDecrypt(ecbRequest models.ECBRequest) []int {
 		}
 		block := ciphertext[i:end]
 		block := append(block[0], block[1:3])
-		decryptedBlock := algorithms.Decrypt(block, key)
+		decryptedBlock := algorithms.NovaDSDecrypt(block, key)
 
 		plainBitArray = append(plainBitArray, decryptedBlock...)
 	}
