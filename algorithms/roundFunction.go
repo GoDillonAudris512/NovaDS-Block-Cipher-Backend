@@ -2,7 +2,6 @@ package algorithms
 
 import (
 	"block-cipher/constants"
-	"fmt"
 )
 
 func roundFunction(input []int, roundKey []int) []int {
@@ -10,29 +9,23 @@ func roundFunction(input []int, roundKey []int) []int {
 	// Expansion permutation from 64-bit input to 96-bit input
 	// This permutation operates in bytes
 
-	// Initialize an empty variable to hold 96-bit permutation result
-	permutation1Result := []int{}
-
-	// Permute the input using P-box 1. Each element in P-box 1 is a pointer to index of byte in input
-	for i := 0; i < len(constants.PBox1); i++ {
-		// Get the start and end index of a certain byte in input
-		start := constants.PBox1[i]*8
-		end := start + 8
-
-		// Put the byte in the permutation result
-		permutation1Result = append(permutation1Result, input[start:end]...)
-	}
+	permutation1Result := permutation1(input)
 
 	//****************** SUBSTITUTION 1 *******************//
 	substitution1Result := substitution1(permutation1Result, roundKey)
 
-	//****************** Permutation 2 *******************//
+	//****************** PERMUTATION 2 *******************//
 	permutation2Result := permutation2(substitution1Result, roundKey)
 
 	//****************** SUBSTITUTION 2 *******************//
 	substitution2Result := substitution2(permutation2Result)
 
-	return []int{}
+	//****************** PERMUTATION 1 *******************//
+	// Compression permutation from 96-bit input to 64-bit input
+	// This permutation operates in bits
+	permutation3Result := permutation3(substitution2Result)
+
+	return permutation3Result
 }
 
 func generateSBox(key []int) [][][]int {
@@ -98,6 +91,22 @@ func generateSBox(key []int) [][][]int {
 	return fsBox
 }
 
+func permutation1(input []int) []int {
+	// Initialize an empty variable to hold 96-bit permutation result
+	permutation1Result := []int{}
+
+	// Permute the input using P-box 1. Each element in P-box 1 is a pointer to index of byte in input
+	for i := 0; i < len(constants.PBox1); i++ {
+		// Get the start and end index of a certain byte in input
+		start := constants.PBox1[i]*8
+		end := start + 8
+
+		// Put the byte in the permutation result
+		permutation1Result = append(permutation1Result, input[start:end]...)
+	}
+
+	return permutation1Result
+}
 
 func substitution1(input []int, roundKey []int) []int {
 	// Substitution 1 performs the substitution operation for a given input
@@ -180,4 +189,10 @@ func substitution2(permutation2Result []int) []int {
 	substitutedResult := MergeBlockArrays(bitBlocks)
 
 	return substitutedResult
+}
+
+func permutation3(substitution2Result []int) []int {
+	// Return the permutation of the result of substitution 2 using P-box 3
+	//Each element in P-box 3 is a pointer to index of bit in input
+	return intArrayPermutation(substitution2Result, constants.PBox3)
 }
