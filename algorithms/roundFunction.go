@@ -50,9 +50,9 @@ func generateSBox(key []int) [][][]int {
 
 	// Continue populating the S-Box using cyclic shifts
     // for the next 21 and 21 rows respectively
+	key = CyclicShiftLeft(key, 7)
 	index = 0
 	for i := 21; i < 42; i++ {
-		key = CyclicShiftLeft(key, 7)
 		for j := 0; j < 6; j++ {
 			sBox[i][j] = key[index]
 			index++
@@ -61,9 +61,9 @@ func generateSBox(key []int) [][][]int {
 
 	// Continue populating the S-Box using cyclic shifts
     // for the next 21 and 21 rows respectively
+	key = CyclicShiftLeft(key, 7)
 	index = 0
 	for i := 42; i < 63; i++ {
-		key = CyclicShiftLeft(key, 7)
 		for j := 0; j < 6; j++ {
 			sBox[i][j] = key[index]
 			index++
@@ -116,25 +116,20 @@ func substitution1(input []int, roundKey []int) []int {
 	trimmedKey := roundKey[1 : len(roundKey)-1]
 	trimmedKey = CyclicShiftLeft(trimmedKey, 7)
 
-	// Convert the trimmed key into bit blocks
-	bitBlocks := BinaryArrayToBitBlocks(trimmedKey, 6)
-
 	// Generate the S-Box using the trimmed key
-	sBox := generateSBox(MergeBlockArrays(bitBlocks))
+	sBox := generateSBox(trimmedKey)
 
 	// Convert the input into bit blocks
 	inputBlocks := BinaryArrayToBitBlocks(input, 6)
 
 	// Perform substitution for each input block using the generated S-Box
-	for _, block := range inputBlocks {
+	for i, block := range inputBlocks {
 		row := binaryArrayToInt([]int{block[1], block[4]})
 		col := binaryArrayToInt([]int{block[0], block[2], block[3], block[5]})
 		substituteValue := sBox[row][col]
 
 		// Update the input block with the substituted value
-		for i := 0; i < 6; i++ {
-			block[i] = substituteValue[i]
-		}
+		inputBlocks[i] = substitutedValue
 	}
 
 	// Merge the substituted input blocks into a single array
@@ -160,10 +155,7 @@ func permutation2(subsResult []int, roundKey []int) []int {
 	res := XORBitArray(subsResult, MergeBlockArrays(trimmedKeys))
 
 	// Permute the bits according to the PBox2 permutation table
-	permutatedBits := make([]int, 96)
-	for i := 0; i < 96; i++ {
-		permutatedBits[i] = res[constants.PBox2[i]]
-	}
+	permutatedBits := intArrayPermutation(res, constants.PBox2[i])
 
 	return permutatedBits
 }
@@ -182,7 +174,7 @@ func substitution2(permutation2Result []int) []int {
 		row := binaryArrayToInt(block[4:])
 
 		substitutedValue := constants.SBoxRijndael[row][col]
-        bitBlocks[i] = intToBinaryArray(substitutedValue)
+        bitBlocks[i] = intToBinaryArray(substitutedValue)[58:64]
 	}
 
 	// Merge the substituted bit blocks into a single array
