@@ -88,13 +88,13 @@ func intToBinaryArray(n int) []int {
 }
 
 // Turn binary array into bit blocks
-func BinaryArrayToBitBlocks(binaryArray []int) [][]int {
-    numBlocks := len(binaryArray) / 8
+func BinaryArrayToBitBlocks(binaryArray []int, blockSize int) [][]int {
+    numBlocks := len(binaryArray) / blockSize
     bitBlocks := make([][]int, numBlocks)
 
     for i := 0; i < numBlocks; i++ {
-        start := i * 8
-        end := start + 8
+        start := i * blockSize
+        end := start + blockSize
         bitBlocks[i] = binaryArray[start:end]
     }
 
