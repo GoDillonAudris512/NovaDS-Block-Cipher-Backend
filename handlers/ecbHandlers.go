@@ -40,7 +40,7 @@ func ECBEncrypt(ecbRequest models.ECBRequest) []int {
 	plaintext := ecbRequest.TextBitArray
 	key := ecbRequest.KeyBitArray
 
-	cipherBitArray := algorithms.NovaDSEncrypt(plaintext, key)
+	cipherBitArray = algorithms.NovaDSEncrypt(plaintext, key)
 
 	return cipherBitArray
 }
@@ -50,7 +50,7 @@ func ECBDecrypt(ecbRequest models.ECBRequest) []int {
 	ciphertext := ecbRequest.TextBitArray
 	key := ecbRequest.KeyBitArray
 
-	plainBitArray := algorithms.NovaDSDncrypt(ciphertext, key)
+	plainBitArray = algorithms.NovaDSDncrypt(ciphertext, key)
 
 	return plainBitArray
 }

@@ -1,11 +1,10 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"fmt"
 
 	"block-cipher/algorithms"
 	"block-cipher/models"
@@ -60,7 +59,7 @@ func CounterEncrypt(counterRequest models.CounterRequest) []int {
 	return cipherBitArray
 }
 
-func CounterDecrypt(cipherRequest models.CipherRequest) []int {
+func CounterDecrypt(counterRequest models.CounterRequest) []int {
     var plaintextBlockArray [][]int
     counter := make([]int, 8)
 
