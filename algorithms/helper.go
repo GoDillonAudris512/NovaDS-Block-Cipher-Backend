@@ -1,14 +1,14 @@
 package algorithms
 
-
+//****************** BLOCK ARRAY *******************//
 // Function to divide the text bit array into blocks for block cipher processing
-func CreateBlockArrays(bitArray []int) [][]int{
+func CreateBlockArrays(bitArray []int) [][]int {
 	var blockArrays [][]int
 	var blockArray []int
 
 	for i := 0; i < len(bitArray); i++ {
 		blockArray = append(blockArray, bitArray[i])
-		if (i + 1) % 128 == 0 {
+		if (i+1)%128 == 0 {
 			blockArrays = append(blockArrays, blockArray)
 			blockArray = []int{}
 		}
@@ -19,7 +19,7 @@ func CreateBlockArrays(bitArray []int) [][]int{
 		for len(blockArrays[lastArrayIdx]) < 128 {
 			blockArrays[lastArrayIdx] = append(blockArrays[lastArrayIdx], 0)
 		}
-	} 
+	}
 
 	return blockArrays
 }
@@ -35,6 +35,59 @@ func MergeBlockArrays(blockArrays [][]int) []int {
 	return bitArray
 }
 
+//****************** BINARY ARRAY CONVERSION *******************//
+// Turn a representation of binary array into array of bytes
+func binaryArrayToBytes(binaryArray []int) []byte {
+	numBytes := len(binaryArray) / 8
+	bytes := make([]byte, numBytes)
+
+	for i := 0; i < len(binaryArray); i++ {
+		if binaryArray[i] == 1 {
+			bytes[i/8] |= 1 << uint(7-(i%8))
+		}
+	}
+
+	return bytes
+}
+
+// Turn an array of bytes into representation of binary array
+func bytesToBinaryArray(bytes []byte) []int {
+	binaryArray := make([]int, len(bytes)*8)
+
+	for i, b := range bytes {
+		for j := 0; j < 8; j++ {
+			bit := (b >> uint(7-j)) & 0x01
+			index := i*8 + j
+			binaryArray[index] = int(bit)
+		}
+	}
+
+	return binaryArray
+}
+
+// Turn a representation of binary array into its integer
+func binaryArrayToInt(binaryArray []int) int {
+	result := 0
+
+	for _, bit := range binaryArray {
+		result = (result << 1) | bit
+	}
+
+	return result
+}
+
+// Turn an integer into its representation of binary array
+func intToBinaryArray(n int) []int {
+	binaryArray := make([]int, 64)
+
+	for i := 0; i < 64; i++ {
+		binaryArray[i] = (n >> uint(64-1-i)) & 1
+	}
+
+	return binaryArray
+}
+
+//****************** BINARY ARRAY OPERATION *******************//
 // Function to do XOR operation between 2 arrays of bits with the same length
 func XORBitArray(bitArrayA []int, bitArrayB []int) []int {
 	result := []int{}
@@ -48,4 +101,17 @@ func XORBitArray(bitArrayA []int, bitArrayB []int) []int {
 	}
 
 	return result
+}
+
+// Permute an array of integer of n element using P-Box (P-box contains value of 0 to n)
+func intArrayPermutation(array []int, pBox []int) []int {
+	// Initialize an empty variable to hold permutation result
+	permutationResult := []int{}
+
+	// Loop through P-box. Each element in P-box is a pointer to index of element in array
+	for i := 0; i < len(pBox); i++ {
+		permutationResult = append(permutationResult, array[pBox[i]])
+	}
+
+	return permutationResult
 }
