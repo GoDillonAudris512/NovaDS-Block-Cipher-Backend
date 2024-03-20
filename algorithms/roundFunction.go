@@ -2,6 +2,7 @@ package algorithms
 
 import (
 	"block-cipher/constants"
+	"fmt"
 )
 
 func roundFunction(input []int, roundKey []int) []int {
@@ -22,5 +23,161 @@ func roundFunction(input []int, roundKey []int) []int {
 		permutation1Result = append(permutation1Result, input[start:end]...)
 	}
 
+	//****************** SUBSTITUTION 1 *******************//
+	substitution1Result := substitution1(permutation1Result, roundKey)
+
+	//****************** Permutation 2 *******************//
+	permutation2Result := permutation2(substitution1Result, roundKey)
+
+	//****************** SUBSTITUTION 2 *******************//
+	substitution2Result := substitution2(permutation2Result)
+
 	return []int{}
+}
+
+func generateSBox(key []int) [][][]int {
+	// generateSBox generates the S-Box using the provided key.
+	// It constructs the S-Box by filling it with values derived from the key
+	// using cyclic shifts and index manipulation.
+
+	sBox := make([][]int, 64)
+	for i := range sBox {
+		sBox[i] = make([]int, 6)
+	}
+
+	// Populate the first 21 rows of the S-Box
+    // with values derived from the key
+	index := 0
+	for i := 0; i < 21; i++ {
+		for j := 0; j < 6; j++ {
+			sBox[i][j] = key[index]
+			index++
+		}
+	}
+
+	// Continue populating the S-Box using cyclic shifts
+    // for the next 21 and 21 rows respectively
+	index = 0
+	for i := 21; i < 42; i++ {
+		key = CyclicShiftLeft(key, 7)
+		for j := 0; j < 6; j++ {
+			sBox[i][j] = key[index]
+			index++
+		}
+	}
+
+	// Continue populating the S-Box using cyclic shifts
+    // for the next 21 and 21 rows respectively
+	index = 0
+	for i := 42; i < 63; i++ {
+		key = CyclicShiftLeft(key, 7)
+		for j := 0; j < 6; j++ {
+			sBox[i][j] = key[index]
+			index++
+		}
+	}
+
+	// Fill the last row of the S-Box with the remaining key bits
+	key = CyclicShiftLeft(key, 7)
+	for j := 0; j < 6; j++ {
+		sBox[63][j] = key[j]
+	}
+
+	// Rearrange the S-Box into a 4x16x6 structure
+	fsBox := make([][][]int, 4)
+	for i := range fsBox {
+		fsBox[i] = make([][]int, 16)
+	}
+
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 16; j++ {
+			fsBox[i][j] = sBox[i*16+j]
+		}
+	}
+
+	return fsBox
+}
+
+
+func substitution1(input []int, roundKey []int) []int {
+	// Substitution 1 performs the substitution operation for a given input
+	// using a round key. It utilizes the generated S-Box to perform substitution.
+
+	// Trim the round key and perform a left cyclic shift
+	trimmedKey := roundKey[1 : len(roundKey)-1]
+	trimmedKey = CyclicShiftLeft(trimmedKey, 7)
+
+	// Convert the trimmed key into bit blocks
+	bitBlocks := BinaryArrayToBitBlocks(trimmedKey, 6)
+
+	// Generate the S-Box using the trimmed key
+	sBox := generateSBox(MergeBlockArrays(bitBlocks))
+
+	// Convert the input into bit blocks
+	inputBlocks := BinaryArrayToBitBlocks(input, 6)
+
+	// Perform substitution for each input block using the generated S-Box
+	for _, block := range inputBlocks {
+		row := binaryArrayToInt([]int{block[1], block[4]})
+		col := binaryArrayToInt([]int{block[0], block[2], block[3], block[5]})
+		substituteValue := sBox[row][col]
+
+		// Update the input block with the substituted value
+		for i := 0; i < 6; i++ {
+			block[i] = substituteValue[i]
+		}
+	}
+
+	// Merge the substituted input blocks into a single array
+	output := MergeBlockArrays(inputBlocks)
+
+	return output
+}
+
+func permutation2(subsResult []int, roundKey []int) []int {
+	// Permutation 2 performs permutation on the result of substitution operation
+	// using a round key. It utilizes the permutation table (PBox2) for permutation.
+
+	// Extract trimmed keys from the round key
+	var trimmedKeys [][]int
+	blockKey := BinaryArrayToBitBlocks(roundKey, 8)
+
+	for _, block := range blockKey {
+		trimmedKey := append(block[1:6], block[7])
+		trimmedKeys = append(trimmedKeys, trimmedKey)
+	}
+
+	// XOR the result of substitution with trimmed keys
+	res := XORBitArray(subsResult, MergeBlockArrays(trimmedKeys))
+
+	// Permute the bits according to the PBox2 permutation table
+	permutatedBits := make([]int, 96)
+	for i := 0; i < 96; i++ {
+		permutatedBits[i] = res[constants.PBox2[i]]
+	}
+
+	return permutatedBits
+}
+
+func substitution2(permutation2Result []int) []int {
+	// Substitution 2 performs the substitution operation on the result of permutation
+	// using a predefined S-Box for Rijndael. It utilizes the provided constants.SBoxRijndael
+	// for substitution.
+
+	// Convert the permutation result into bit blocks
+	bitBlocks := BinaryArrayToBitBlocks(permutation2Result, 8)
+
+	// Perform substitution for each bit block using the Rijndael S-Box
+	for i, block := range bitBlocks {
+		col := binaryArrayToInt(block[:4])
+		row := binaryArrayToInt(block[4:])
+
+		substitutedValue := constants.SBoxRijndael[row][col]
+        bitBlocks[i] = intToBinaryArray(substitutedValue)
+	}
+
+	// Merge the substituted bit blocks into a single array
+	substitutedResult := MergeBlockArrays(bitBlocks)
+
+	return substitutedResult
 }
