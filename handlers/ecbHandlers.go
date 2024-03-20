@@ -40,13 +40,7 @@ func ECBEncrypt(ecbRequest models.ECBRequest) []int {
 	plaintext := ecbRequest.TextBitArray
 	key := ecbRequest.KeyBitArray
 
-	bitBlocks := algorithms.BinaryArrayToBitBlocks(plaintext)
-
-	for _, block := range bitBlocks {
-		encryptedBlock := algorithms.XORBitArray(block, key)
-		encryptedBlock = algorithms.CyclicShiftLeft(encryptedBlock, 1)
-		cipherBitArray = append(cipherBitArray, encryptedBlock...)
-	}
+	cipherBitArray := algorithms.NovaDSEncrypt(plaintext, key)
 
 	return cipherBitArray
 }
@@ -56,13 +50,7 @@ func ECBDecrypt(ecbRequest models.ECBRequest) []int {
 	ciphertext := ecbRequest.TextBitArray
 	key := ecbRequest.KeyBitArray
 
-	bitBlocks := algorithms.BinaryArrayToBitBlocks(plaintext)
-
-	for _, block := range bitBlocks {
-		encryptedBlock := algorithms.CyclicShiftRight(encryptedBlock, 1)
-		encryptedBlock = algorithms.XORBitArray(block, key)
-		plainBitArray = append(plainBitArray, encryptedBlock...)
-	}
+	plainBitArray := algorithms.NovaDSDncrypt(ciphertext, key)
 
 	return plainBitArray
 }
