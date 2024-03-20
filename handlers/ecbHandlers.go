@@ -16,9 +16,9 @@ func HandleECBRequest(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": "Failed to decode request body"})
 		return
-}
+	}
 
-blockArrays := algorithms.CreateBlockArrays(ecbRequest.TextBitArray)
+	blockArrays := algorithms.CreateBlockArrays(ecbRequest.TextBitArray)
 
 	if ecbRequest.Encrypt {
 		result := ECBEncrypt(blockArrays, ecbRequest)
