@@ -62,13 +62,21 @@ func GeneratePBoxRK(seed int) []int {
 		random := rng.Int63n(64)
 		if !slices.Contains(pBoxRK, int(random)) {
 			pBoxRK = append(pBoxRK, int(random))
+		} else {
+			pBoxRK = append(pBoxRK, 64)
 		}
 	}
 
 	// Add the remaining number from 0 to 63 that hasn't been put in the P-box
-	for j := 0; j < 64; j++ {
-		if !slices.Contains(pBoxRK, j) {
-			pBoxRK = append(pBoxRK, j)
+	intNotInPBox := 0
+	i := 0
+	for i < 64 {
+		if pBoxRK[i] == 64 {
+			for slices.Contains(pBoxRK, intNotInPBox) {
+				intNotInPBox++
+			}
+			pBoxRK[i] = intNotInPBox
+			intNotInPBox++
 		}
 	}
 
