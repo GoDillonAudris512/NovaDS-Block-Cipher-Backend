@@ -1,5 +1,5 @@
 package constants
 
 var (
-	pBox2 []int = []int{}
+	PBox1 = []int{4, 7, 2, 1, 4, 0, 3, 6, 5, 6, 0, 2}
 )
