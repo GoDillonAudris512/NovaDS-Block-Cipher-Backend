@@ -50,7 +50,7 @@ func ECBDecrypt(ecbRequest models.ECBRequest) []int {
 	ciphertext := ecbRequest.TextBitArray
 	key := ecbRequest.KeyBitArray
 
-	plainBitArray = algorithms.NovaDSDncrypt(ciphertext, key)
+	plainBitArray = algorithms.NovaDSDecrypt(ciphertext, key)
 
 	return plainBitArray
 }

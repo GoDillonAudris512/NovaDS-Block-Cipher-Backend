@@ -39,7 +39,7 @@ func CounterEncrypt(counterRequest models.CounterRequest) []int {
 	var cipherBlockArray [][]int
 	counter := make([]int, 8)
 
-	for i := 0; i < len(plaintext); i += 8 {
+	for i := 0; i < len(counterRequest.TextBitArray); i += 8 {
 		result := algorithms.NovaDSEncrypt(counterRequest.KeyBitArray, counter)
 		result = algorithms.XORBitArray(result, counterRequest.TextBitArray)
 
@@ -63,9 +63,9 @@ func CounterDecrypt(counterRequest models.CounterRequest) []int {
     var plaintextBlockArray [][]int
     counter := make([]int, 8)
 
-    for i := 0; i < len(cipherRequest.CipherBitArray); i += 8 {
-        result := algorithms.NovaDSEncrypt(cipherRequest.KeyBitArray, counter)
-        plaintextBlock := algorithms.XORBitArray(result, cipherRequest.CipherBitArray[i:i+8])
+    for i := 0; i < len(counterRequest.TextBitArray); i += 8 {
+        result := algorithms.NovaDSDecrypt(counterRequest.KeyBitArray, counter)
+        plaintextBlock := algorithms.XORBitArray(result, counterRequest.TextBitArray[i:i+8])
 
         plaintextBlockArray = append(plaintextBlockArray, plaintextBlock)
 
