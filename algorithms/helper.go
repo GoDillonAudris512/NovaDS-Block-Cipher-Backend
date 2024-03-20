@@ -87,6 +87,52 @@ func intToBinaryArray(n int) []int {
 	return binaryArray
 }
 
+// Turn binary array into bit blocks
+func BinaryArrayToBitBlocks(binaryArray []int) [][]int {
+    numBlocks := len(binaryArray) / 8
+    bitBlocks := make([][]int, numBlocks)
+
+    for i := 0; i < numBlocks; i++ {
+        start := i * 8
+        end := start + 8
+        bitBlocks[i] = binaryArray[start:end]
+    }
+
+    return bitBlocks
+}
+
+// Do A Cyclic Shift Left on Bit Blocks
+func CyclicShiftLeft(binaryArray []int, shiftAmount int) []int {
+	arrayLen := len(binaryArray)
+	shiftAmount %= arrayLen
+
+	shiftedArray := make([]int, arrayLen)
+	copy(shiftedArray, binaryArray)
+
+	for i := 0; i < arrayLen; i++ {
+		destIdx := (i - shiftAmount + arrayLen) % arrayLen
+		shiftedArray[destIdx] = binaryArray[i]
+	}
+
+	return shiftedArray
+}
+
+// Do A Cyclic Shift Right on Bit Blocks
+func CyclicShiftRight(binaryArray []int, shiftAmount int) []int {
+	arrayLen := len(binaryArray)
+	shiftAmount %= arrayLen
+
+	shiftedArray := make([]int, arrayLen)
+	copy(shiftedArray, binaryArray)
+
+	for i := 0; i < arrayLen; i++ {
+		destIdx := (i + shiftAmount) % arrayLen
+		shiftedArray[destIdx] = binaryArray[i]
+	}
+
+	return shiftedArray
+}
+
 //****************** BINARY ARRAY OPERATION *******************//
 // Function to do XOR operation between 2 arrays of bits with the same length
 func XORBitArray(bitArrayA []int, bitArrayB []int) []int {
