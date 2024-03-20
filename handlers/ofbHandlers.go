@@ -66,7 +66,7 @@ func OFBDecrypt(ofbRequest models.OFBRequest) []int {
 		result = algorithms.XORBitArray(result, keystreamLSB)
 
 		shiftRegister = shiftRegister[8:128]
-		shiftRegister = append(shiftRegister, (ofbRequest.TextBitArray[i : i+8])...)
+		shiftRegister = append(shiftRegister, keystreamLSB...)
 		plainBitArray = append(plainBitArray, result...)
 	}
 

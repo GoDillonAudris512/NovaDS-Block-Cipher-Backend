@@ -16,41 +16,45 @@ func HandleECBRequest(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": "Failed to decode request body"})
 		return
-	}
+}
+
+blockArrays := algorithms.CreateBlockArrays(ecbRequest.TextBitArray)
 
 	if ecbRequest.Encrypt {
-		result := ECBEncrypt(ecbRequest)
+		result := ECBEncrypt(blockArrays, ecbRequest)
 		c.JSON(http.StatusOK, models.ECBResponse{
-			Success:        true,
-			ResultBitArray: result,
+		Success:        true,
+		ResultBitArray: result,
 		})
 		return
 	} else {
-		result := ECBDecrypt(ecbRequest)
+		result := ECBDecrypt(blockArrays, ecbRequest)
 		c.JSON(http.StatusOK, models.ECBResponse{
-			Success:        true,
-			ResultBitArray: result,
+		Success:        true,
+		ResultBitArray: result,
 		})
 		return
 	}
 }
 
-func ECBEncrypt(ecbRequest models.ECBRequest) []int {
+func ECBEncrypt(blockArrays [][]int, ecbRequest models.ECBRequest) []int {
 	var cipherBitArray []int
-	plaintext := ecbRequest.TextBitArray
-	key := ecbRequest.KeyBitArray
 
-	cipherBitArray = algorithms.NovaDSEncrypt(plaintext, key)
+	for _, block := range blockArrays {
+		result := algorithms.NovaDSEncrypt(block, ecbRequest.KeyBitArray)
+		cipherBitArray = append(cipherBitArray, result...)
+	}
 
 	return cipherBitArray
 }
 
-func ECBDecrypt(ecbRequest models.ECBRequest) []int {
+func ECBDecrypt(blockArrays [][]int, ecbRequest models.ECBRequest) []int {
 	var plainBitArray []int
-	ciphertext := ecbRequest.TextBitArray
-	key := ecbRequest.KeyBitArray
 
-	plainBitArray = algorithms.NovaDSDecrypt(ciphertext, key)
+	for _, block := range blockArrays {
+		result := algorithms.NovaDSEncrypt(block, ecbRequest.KeyBitArray)
+		plainBitArray = append(plainBitArray, result...)
+	}
 
 	return plainBitArray
 }
