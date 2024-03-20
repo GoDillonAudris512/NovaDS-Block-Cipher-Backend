@@ -16,6 +16,18 @@ func ConfigureRouter(r *gin.Engine) {
 	r.GET("/api", handlers.HelloHandler)
 	apis := r.Group("/api")
 
+	// ECB Mode Endpoints
+	apis.POST("/ecb", handlers.HandleECBRequest)
+
 	// CBC Mode Endpoints
 	apis.POST("/cbc", handlers.HandleCBCRequest)
+
+	// CFB Mode Endpoints
+	apis.POST("/cfb", handlers.HandleCFBRequest)
+
+	// OFB Mode Endpoints
+	apis.POST("/ofb", handlers.HandleOFBRequest)
+
+	// Counter Mode Endpoints
+	apis.POST("/counter", handlers.HandleCounterRequest)
 }
