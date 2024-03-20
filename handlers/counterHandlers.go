@@ -18,69 +18,39 @@ func HandleCounterRequest(c *gin.Context) {
 		return
 	}
 
-	if counterRequest.Encrypt {
-		result := CounterEncrypt(counterRequest)
-		c.JSON(http.StatusOK, models.CounterResponse{
-			Success:        true,
-			ResultBitArray: result,
-		})
-		return
-	} else {
-		result := CounterDecrypt(counterRequest)
-		c.JSON(http.StatusOK, models.CounterResponse{
-			Success:        true,
-			ResultBitArray: result,
-		})
-		return
-	}
+	blockArrays := algorithms.CreateBlockArrays(counterRequest.TextBitArray)
+
+	result := CounterMode(blockArrays, counterRequest)
+	c.JSON(http.StatusOK, models.CounterResponse{
+		Success:        true,
+		ResultBitArray: result,
+	})
 }
 
-func CounterEncrypt(counterRequest models.CounterRequest) []int {
-	var cipherBlockArray [][]int
-	counter := make([]int, 8)
+func CounterMode(blockArrays [][]int, counterRequest models.CounterRequest) []int {
+	var processedBlockArray []int
+	counter := make([]int, 128)
 
-	for i := 0; i < len(counterRequest.TextBitArray); i += 8 {
-		result := algorithms.NovaDSEncrypt(counterRequest.KeyBitArray, counter)
-		result = algorithms.XORBitArray(result, counterRequest.TextBitArray)
-
-		cipherBlockArray = append(cipherBlockArray, result)
-		for i := len(counter) - 1; i >= 0; i-- {
-			if counter[i] == 0 {
-				counter[i] = 1
-				break
-			} else {
-				counter[i] = 0
-			}
-		}
+	for _, block := range blockArrays {
+		keystream := algorithms.NovaDSEncrypt(counter, counterRequest.KeyBitArray)
+		result := algorithms.XORBitArray(block, keystream)
+		processedBlockArray = append(processedBlockArray, result...)
+		incrementCounter(counter)
 	}
 
-	cipherBitArray := algorithms.MergeBlockArrays(cipherBlockArray)
-
-	return cipherBitArray
+	return processedBlockArray
 }
 
-func CounterDecrypt(counterRequest models.CounterRequest) []int {
-    var plaintextBlockArray [][]int
-    counter := make([]int, 8)
+func incrementCounter(counter []int) []int {
+	carry := 1
+	index := len(counter) - 1
 
-    for i := 0; i < len(counterRequest.TextBitArray); i += 8 {
-        result := algorithms.NovaDSDecrypt(counterRequest.KeyBitArray, counter)
-        plaintextBlock := algorithms.XORBitArray(result, counterRequest.TextBitArray[i:i+8])
+	for carry > 0 && index >= 0 {
+		counter[index] += carry
+		carry = counter[index] / 2
+		counter[index] %= 2
+		index--
+	}
 
-        plaintextBlockArray = append(plaintextBlockArray, plaintextBlock)
-
-        // Increment counter
-        for j := len(counter) - 1; j >= 0; j-- {
-            if counter[j] == 1 {
-                counter[j] = 0
-            } else {
-                counter[j] = 1
-                break
-            }
-        }
-    }
-
-    plaintextBitArray := algorithms.MergeBlockArrays(plaintextBlockArray)
-
-    return plaintextBitArray
+	return counter
 }
