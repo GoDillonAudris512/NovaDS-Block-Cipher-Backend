@@ -1,4 +1,4 @@
-package handlers
+package main
 
 import (
 	"encoding/json"
@@ -37,18 +37,14 @@ func HandleECBRequest(c *gin.Context) {
 
 func ECBEncrypt(ecbRequest models.ECBRequest) []int {
 	var cipherBitArray []int
-	plaintext := ecbRequest.PlaintextBitArray
+	plaintext := ecbRequest.TextBitArray
 	key := ecbRequest.KeyBitArray
 
-	for i := 0; i < len(plaintext); i += len(key) {
-		end := i + len(key)
-		if end > len(plaintext) {
-			end = len(plaintext)
-		}
-		block := plaintext[i:end]
-		encryptedBlock := algorithms.NovaDSEncrypt(block, key)
-		encryptedBlock := append(encryptedBlock[1:3], encryptedBlock[0])
+	bitBlocks := algorithms.BinaryArrayToBitBlocks(plaintext)
 
+	for _, block := range bitBlocks {
+		encryptedBlock := algorithms.XORBitArray(block, key)
+		encryptedBlock = algorithms.CyclicShiftLeft(encryptedBlock, 1)
 		cipherBitArray = append(cipherBitArray, encryptedBlock...)
 	}
 
@@ -57,19 +53,15 @@ func ECBEncrypt(ecbRequest models.ECBRequest) []int {
 
 func ECBDecrypt(ecbRequest models.ECBRequest) []int {
 	var plainBitArray []int
-	ciphertext := ecbRequest.CiphertextBitArray
+	ciphertext := ecbRequest.TextBitArray
 	key := ecbRequest.KeyBitArray
 
-	for i := 0; i < len(ciphertext); i += len(key) {
-		end := i + len(key)
-		if end > len(ciphertext) {
-			end = len(ciphertext)
-		}
-		block := ciphertext[i:end]
-		block := append(block[0], block[1:3])
-		decryptedBlock := algorithms.NovaDSDecrypt(block, key)
+	bitBlocks := algorithms.BinaryArrayToBitBlocks(plaintext)
 
-		plainBitArray = append(plainBitArray, decryptedBlock...)
+	for _, block := range bitBlocks {
+		encryptedBlock := algorithms.CyclicShiftRight(encryptedBlock, 1)
+		encryptedBlock = algorithms.XORBitArray(block, key)
+		plainBitArray = append(plainBitArray, encryptedBlock...)
 	}
 
 	return plainBitArray
