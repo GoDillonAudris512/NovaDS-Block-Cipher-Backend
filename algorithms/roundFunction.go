@@ -129,7 +129,7 @@ func substitution1(input []int, roundKey []int) []int {
 		substituteValue := sBox[row][col]
 
 		// Update the input block with the substituted value
-		inputBlocks[i] = substitutedValue
+		inputBlocks[i] = substituteValue
 	}
 
 	// Merge the substituted input blocks into a single array
@@ -155,7 +155,7 @@ func permutation2(subsResult []int, roundKey []int) []int {
 	res := XORBitArray(subsResult, MergeBlockArrays(trimmedKeys))
 
 	// Permute the bits according to the PBox2 permutation table
-	permutatedBits := intArrayPermutation(res, constants.PBox2[i])
+	permutatedBits := intArrayPermutation(res, constants.PBox2)
 
 	return permutatedBits
 }
