@@ -52,7 +52,7 @@ func ECBDecrypt(blockArrays [][]int, ecbRequest models.ECBRequest) []int {
 	var plainBitArray []int
 
 	for _, block := range blockArrays {
-		result := algorithms.NovaDSEncrypt(block, ecbRequest.KeyBitArray)
+		result := algorithms.NovaDSDecrypt(block, ecbRequest.KeyBitArray)
 		plainBitArray = append(plainBitArray, result...)
 	}
 
