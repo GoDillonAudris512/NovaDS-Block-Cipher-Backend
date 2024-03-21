@@ -20,7 +20,7 @@ func roundFunction(input []int, roundKey []int) []int {
 	//****************** SUBSTITUTION 2 *******************//
 	substitution2Result := substitution2(permutation2Result)
 
-	//****************** PERMUTATION 1 *******************//
+	//****************** PERMUTATION 3 *******************//
 	// Compression permutation from 96-bit input to 64-bit input
 	// This permutation operates in bits
 	permutation3Result := permutation3(substitution2Result)
@@ -39,7 +39,7 @@ func generateSBox(key []int) [][][]int {
 	}
 
 	// Populate the first 21 rows of the S-Box
-    // with values derived from the key
+	// with values derived from the key
 	index := 0
 	for i := 0; i < 21; i++ {
 		for j := 0; j < 6; j++ {
@@ -49,7 +49,7 @@ func generateSBox(key []int) [][][]int {
 	}
 
 	// Continue populating the S-Box using cyclic shifts
-    // for the next 21 and 21 rows respectively
+	// for the next 21 and 21 rows respectively
 	key = CyclicShiftLeft(key, 7)
 	index = 0
 	for i := 21; i < 42; i++ {
@@ -60,7 +60,7 @@ func generateSBox(key []int) [][][]int {
 	}
 
 	// Continue populating the S-Box using cyclic shifts
-    // for the next 21 and 21 rows respectively
+	// for the next 21 and 21 rows respectively
 	key = CyclicShiftLeft(key, 7)
 	index = 0
 	for i := 42; i < 63; i++ {
@@ -98,7 +98,7 @@ func permutation1(input []int) []int {
 	// Permute the input using P-box 1. Each element in P-box 1 is a pointer to index of byte in input
 	for i := 0; i < len(constants.PBox1); i++ {
 		// Get the start and end index of a certain byte in input
-		start := constants.PBox1[i]*8
+		start := constants.PBox1[i] * 8
 		end := start + 8
 
 		// Put the byte in the permutation result
@@ -174,7 +174,7 @@ func substitution2(permutation2Result []int) []int {
 		row := binaryArrayToInt(block[4:])
 
 		substitutedValue := constants.SBoxRijndael[row][col]
-        bitBlocks[i] = intToBinaryArray(substitutedValue)[58:64]
+		bitBlocks[i] = intToBinaryArray(substitutedValue)[56:64]
 	}
 
 	// Merge the substituted bit blocks into a single array
