@@ -13,6 +13,7 @@ func CreateBlockArrays(bitArray []int) [][]int {
 			blockArray = []int{}
 		}
 	}
+	blockArrays = append(blockArrays, blockArray)
 
 	lastArrayIdx := len(blockArrays) - 1
 	if len(blockArrays[lastArrayIdx]) < 128 {
