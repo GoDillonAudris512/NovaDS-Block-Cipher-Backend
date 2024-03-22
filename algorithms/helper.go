@@ -13,7 +13,9 @@ func CreateBlockArrays(bitArray []int) [][]int {
 			blockArray = []int{}
 		}
 	}
-	blockArrays = append(blockArrays, blockArray)
+	if len(blockArray) != 0 {
+		blockArrays = append(blockArrays, blockArray)
+	}
 
 	lastArrayIdx := len(blockArrays) - 1
 	if len(blockArrays[lastArrayIdx]) < 128 {
@@ -34,6 +36,34 @@ func MergeBlockArrays(blockArrays [][]int) []int {
 	}
 
 	return bitArray
+}
+
+func DeletePadding(bitArray []int) []int {
+	processedBitArray := bitArray
+
+	hasPadding := true
+	for hasPadding {
+		start := len(processedBitArray) - 8
+		hasPadding = isAllZero(processedBitArray[start:])
+		if hasPadding {
+			processedBitArray = processedBitArray[0:start]
+		}
+	}
+
+	return processedBitArray
+}
+
+func isAllZero(blockArray []int) bool {
+	allZero := true
+
+	for _, bit := range blockArray {
+		if bit == 1 {
+			allZero = false
+			break
+		}
+	}
+
+	return allZero
 }
 
 //****************** BINARY ARRAY CONVERSION *******************//

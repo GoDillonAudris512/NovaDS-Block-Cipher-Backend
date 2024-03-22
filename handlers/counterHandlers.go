@@ -21,10 +21,17 @@ func HandleCounterRequest(c *gin.Context) {
 	blockArrays := algorithms.CreateBlockArrays(counterRequest.TextBitArray)
 
 	result := CounterMode(blockArrays, counterRequest)
-	c.JSON(http.StatusOK, models.CounterResponse{
-		Success:        true,
-		ResultBitArray: result,
-	})
+	if counterRequest.Encrypt {
+		c.JSON(http.StatusOK, models.CounterResponse{
+			Success:        true,
+			ResultBitArray: result,
+		})
+	} else {
+		c.JSON(http.StatusOK, models.CounterResponse{
+			Success:        true,
+			ResultBitArray: algorithms.DeletePadding(result),
+		})
+	}
 }
 
 func CounterMode(blockArrays [][]int, counterRequest models.CounterRequest) []int {

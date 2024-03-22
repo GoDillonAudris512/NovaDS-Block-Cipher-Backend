@@ -31,7 +31,7 @@ func HandleECBRequest(c *gin.Context) {
 		result := ECBDecrypt(blockArrays, ecbRequest)
 		c.JSON(http.StatusOK, models.ECBResponse{
 		Success:        true,
-		ResultBitArray: result,
+		ResultBitArray: algorithms.DeletePadding(result),
 		})
 		return
 	}

@@ -31,7 +31,7 @@ func HandleCBCRequest(c *gin.Context) {
 		result := CBCDecrypt(cbcRequest, blockArrays)
 		c.JSON(http.StatusOK, models.CBCResponse{
 			Success:        true,
-			ResultBitArray: result,
+			ResultBitArray: algorithms.DeletePadding(result),
 		})
 		return
 	}
